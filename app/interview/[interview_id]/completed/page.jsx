@@ -87,7 +87,7 @@ const InterviewCompleted = () => {
           </p>
           <p className="text-sm text-gray-500 mt-2">
             Any further Questions ? Contact{' '}
-            <span className="text-blue-600 font-medium">Sujeethkumararjun@gmail.com</span>
+            <span className="text-blue-600 font-medium">hr@babde.tech</span>
           </p>
         </div>
       </div>
