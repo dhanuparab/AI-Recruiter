@@ -22,7 +22,7 @@ function CreateInterview() {
   useEffect(() => {
     if (user?.credits <= 0) {
       toast.error("You don't have enough credits to create an interview");
-      router.push('/dashboard/pricing'); // Redirect to pricing page
+      router.push('/dashboard/create-interview'); // Redirect to pricing page
     }
   }, [user, router]);
 

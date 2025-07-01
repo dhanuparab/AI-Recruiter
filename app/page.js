@@ -3,17 +3,52 @@ import Image from "next/image";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Brain, Users, Sparkles, Target, BarChart2, Clock, Zap, Check, Search, FileText, ShieldCheck, Award, Briefcase } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { ArrowRight, Brain, Users, Sparkles, Target, BarChart2, Clock, Zap, Check, Search, FileText, ShieldCheck, Award, Briefcase, X } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/services/supabaseClient";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+
+  // Refs for smooth scrolling
+  const featuresRef = useRef(null);
+  const pricingRef = useRef(null);
+  const aboutRef = useRef(null);
+
+  // Navigation handlers for navbar buttons
+  const goToCandidate = () => router.push("/auth?page=candidate");
+  const goToRecruiter = () => router.push("/auth?page=recruiter");
+  const goToAdmin = () => router.push("/auth?page=admin");
+  const goToSysAdmin = () => router.push("/auth?page=sysadmin");
+
+  // Scroll to section
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Show modal for demo
+  const goToDemo = () => setShowDemoModal(true);
+  const closeDemoModal = () => setShowDemoModal(false);
+
+  // Start Interview/Login logic
+  const goToInterview = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      router.push("/dashboard");
+    } else {
+      // You can use your Google login or show a login modal here
+      await signInWithGoogle();
+    }
+  };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ 
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/dashboard`
@@ -23,11 +58,11 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // Check if user is already logged in
+    // This code checks for a session and redirects if found
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        router.push('/dashboard');
+        router.push('/');
       }
     };
     
@@ -86,64 +121,83 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/20 via-white to-indigo-50/20">
-      {/* Floating Background Elements - More Dynamic */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-200/20 blur-3xl animate-float-slow"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-72 h-72 rounded-full bg-indigo-200/20 blur-3xl animate-float-medium"></div>
-        <div className="absolute top-1/3 right-1/3 w-48 h-48 rounded-full bg-blue-300/10 blur-3xl animate-float-fast"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-56 h-56 rounded-full bg-purple-200/15 blur-3xl animate-float-slow"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#e0e7ff] via-[#f6f9ff] to-[#f0fdfa]">
+      {/* Navbar */}
+      <nav className="w-full bg-white/70 backdrop-blur-md shadow-lg py-3 px-6 flex items-center justify-between fixed top-0 left-0 z-50 border-b border-blue-100 rounded-b-2xl">
+        <div className="flex items-center gap-2">
+          <div className="bg-gradient-to-tr from-[#6366f1] to-[#3b82f6] text-white font-bold rounded-lg px-2 py-1 text-lg flex items-center shadow-md"><span className="mr-1">AI</span></div>
+          <span className="font-extrabold text-2xl text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#3b82f6] tracking-tight">RecruiterAI</span>
+        </div>
+        <div className="hidden md:flex gap-8 text-gray-700 font-semibold">
+          <button className="hover:text-[#6366f1] transition bg-transparent" onClick={() => scrollToSection(featuresRef)}>Features</button>
+          <button className="hover:text-[#6366f1] transition bg-transparent" onClick={() => scrollToSection(pricingRef)}>Pricing</button>
+          <button className="hover:text-[#6366f1] transition bg-transparent" onClick={() => scrollToSection(aboutRef)}>About</button>
+          <button className="hover:text-[#6366f1] transition bg-transparent" onClick={goToDemo}>Demo</button>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="text-xs px-3 py-1 border-blue-200 flex items-center" onClick={goToRecruiter}><ArrowRight className="w-4 h-4 mr-1" />Recruiter</Button>
+          <Button variant="outline" className="text-xs px-3 py-1 border-blue-200" onClick={goToAdmin}><ArrowRight className="w-4 h-4 mr-1"/>Admin</Button>
+        </div>
+      </nav>
+
+      {/* Demo Modal */}
+      {showDemoModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+              onClick={closeDemoModal}
+              aria-label="Close"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="aspect-w-16 aspect-h-9 w-full rounded-lg overflow-hidden">
+              <iframe
+                width="100%"
+                height="350"
+                src="https://www.youtube.com/embed/2ePf9rue1Ao?autoplay=1"
+                title="AI Demo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <div className="mt-4 text-center font-semibold text-lg">AI Interview Demo</div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-screen relative z-10 pt-32">
         {/* Hero Section */}
-        <div className="text-center space-y-8 max-w-6xl w-full">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="relative inline-block mb-12"
-          >
-            <div className="absolute -inset-4 bg-blue-100/50 rounded-full blur-lg"></div>
-            <div className="relative bg-white p-6 rounded-full shadow-lg border border-blue-100 flex items-center justify-center">
-              <Brain className="w-16 h-16 text-blue-600" />
-              <Sparkles className="w-8 h-8 text-blue-400 absolute -top-2 -right-2 animate-pulse" />
-              <div className="absolute -bottom-2 -left-2 bg-white px-3 py-1 rounded-full shadow-sm text-xs font-medium text-blue-600 border border-blue-100">
-                AI-Powered
-              </div>
+        <div className="text-center space-y-8 max-w-4xl w-full mx-auto">
+          <div className="flex flex-col items-center justify-center">
+            <div className="bg-gradient-to-tr from-[#6366f1] to-[#3b82f6] rounded-2xl w-28 h-28 flex items-center justify-center mb-6 shadow-xl border-4 border-white/60">
+              <Users className="w-16 h-16 text-white" />
             </div>
-          </motion.div>
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 leading-tight tracking-tight"
-          >
-            Smarter Hiring, <br className="hidden sm:block" />Powered by AI
-          </motion.h1>
-
-          <div className="mt-12">
-            <Button
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white group px-8 py-6 text-lg cursor-pointer"
-              onClick={signInWithGoogle} // Example navigation
-            >
-              Start Recruiting
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <h1 className="text-5xl sm:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#6366f1] to-[#3b82f6] mb-2 leading-tight drop-shadow-lg">AI-Powered Recruiting</h1>
+            <p className="text-lg sm:text-2xl text-gray-700 mb-8 font-medium">Revolutionize hiring with smart interviews, instant analytics, and actionable insights.<br className="hidden sm:block"/> Hire the best, faster and fairer.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Button size="lg" className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] hover:from-[#3b82f6] hover:to-[#6366f1] text-white px-10 py-5 text-xl font-bold flex items-center gap-2" onClick={goToInterview}><Clock className="w-6 h-6" /> Start Interview</Button>
+              <Button size="lg" variant="outline" className="border-[#6366f1] text-[#6366f1] px-10 py-5 text-xl font-bold shadow-lg hover:bg-[#6366f1]/10 transition-all" onClick={goToDemo}>Watch Demo</Button>
+            </div>
           </div>
-          
+        </div>
 
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg sm:text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
-          >
-            Transform your recruitment with intelligent matching, automated screening, and data-driven insights that deliver <span className="font-semibold text-blue-600">better candidates faster</span>.
-          </motion.p>
+        {/* Unique Stats Section */}
+        <div className="w-full max-w-5xl mx-auto mt-20 grid grid-cols-1 sm:grid-cols-3 gap-10">
+          <div className="flex flex-col items-center bg-white/80 rounded-2xl shadow-lg p-8 border-t-4 border-[#6366f1]">
+            <span className="text-4xl font-extrabold text-[#6366f1] drop-shadow">95%</span>
+            <span className="text-gray-700 mt-2 font-semibold">Accuracy Rate</span>
+          </div>
+          <div className="flex flex-col items-center bg-white/80 rounded-2xl shadow-lg p-8 border-t-4 border-[#3b82f6]">
+            <span className="text-4xl font-extrabold text-[#3b82f6] drop-shadow">50%</span>
+            <span className="text-gray-700 mt-2 font-semibold">Time Saved</span>
+          </div>
+          <div className="flex flex-col items-center bg-white/80 rounded-2xl shadow-lg p-8 border-t-4 border-[#a21caf]">
+            <span className="text-4xl font-extrabold text-[#a21caf] drop-shadow">10k+</span>
+            <span className="text-gray-700 mt-2 font-semibold">Interviews Conducted</span>
+          </div>
         </div>
 
         {/* Stats Section */}
@@ -257,80 +311,65 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Features Section */}
-        <div className="w-full max-w-7xl mx-auto mt-32">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Powerful Features</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">Everything you need to streamline your recruitment process</p>
+        {/* About Section */}
+        <section ref={aboutRef} id="about" className="w-full max-w-7xl mx-auto mt-32 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">About RecruiterAI</h2>
+          <p className="text-lg text-gray-700 mb-4">
+            RecruiterAI revolutionizes the hiring process by combining artificial intelligence with human expertise to create the most efficient and effective interview experience.
+          </p>
+          <p className="text-base text-gray-600 mb-8">
+            Our platform streamlines candidate evaluation, reduces bias, and helps organizations find the best talent faster than ever before. With advanced AI-powered questions, real-time analysis, and comprehensive reporting, we're transforming how companies hire.
+          </p>
+          <div className="flex flex-wrap justify-center gap-12 mt-8">
+            <div>
+              <span className="text-3xl font-extrabold text-blue-600">10,000+</span>
+              <div className="text-gray-700">Interviews Conducted</div>
+            </div>
+            <div>
+              <span className="text-3xl font-extrabold text-green-600">95%</span>
+              <div className="text-gray-700">Customer Satisfaction</div>
+            </div>
+            <div>
+              <span className="text-3xl font-extrabold text-purple-600">500+</span>
+              <div className="text-gray-700">Companies Trust Us</div>
+            </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Brain className="w-8 h-8 text-blue-500" />,
-                title: "AI Candidate Matching",
-                description: "Advanced algorithms match candidates to your job requirements with unprecedented accuracy.",
-                highlights: ["Skills analysis", "Culture fit scoring", "Experience matching"]
-              },
-              {
-                icon: <FileText className="w-8 h-8 text-indigo-500" />,
-                title: "Automated Screening",
-                description: "Eliminate manual resume reviews with intelligent parsing and scoring of applications.",
-                highlights: ["Resume parsing", "Keyword analysis", "Experience validation"]
-              },
-              {
-                icon: <BarChart2 className="w-8 h-8 text-purple-500" />,
-                title: "Analytics Dashboard",
-                description: "Real-time insights into your hiring pipeline and candidate quality metrics.",
-                highlights: ["Time-to-hire tracking", "Source effectiveness", "Diversity metrics"]
-              },
-              {
-                icon: <ShieldCheck className="w-8 h-8 text-green-500" />,
-                title: "Bias Reduction",
-                description: "Minimize unconscious bias in your hiring process with structured evaluations.",
-                highlights: ["Blind screening", "Structured interviews", "Diversity insights"]
-              },
-              {
-                icon: <Sparkles className="w-8 h-8 text-yellow-500" />,
-                title: "Candidate Engagement",
-                description: "Automated messaging keeps candidates informed and engaged throughout the process.",
-                highlights: ["Personalized emails", "Status updates", "Feedback collection"]
-              },
-              {
-                icon: <Award className="w-8 h-8 text-red-500" />,
-                title: "Employer Branding",
-                description: "Showcase your company culture and values to attract top talent.",
-                highlights: ["Custom career pages", "Team profiles", "Culture highlights"]
-              }
-            ].map((feature, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: Math.floor(index/3) * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-xl shadow-lg p-8 border border-gray-100 hover:shadow-xl transition-all group"
-              >
-                <div className=" w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 mb-4">{feature.description}</p>
-                <ul className="space-y-2">
-                  {feature.highlights.map((highlight, i) => (
-                    <li key={i} className="flex items-start">
-                      <Check className="w-4 h-4 text-green-500 mt-1 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
+        {/* Features Section */}
+        <section ref={featuresRef} id="features" className="w-full max-w-7xl mx-auto mt-32 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Powerful Features</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">Everything you need to conduct professional, AI-enhanced interviews</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="bg-white rounded-xl shadow p-6">
+              <div className="text-2xl font-bold text-blue-600 mb-2">Smart Scheduling</div>
+              <div className="text-gray-600">AI-powered interview scheduling that adapts to candidate and recruiter availability.</div>
+            </div>
+            <div className="bg-white rounded-xl shadow p-6">
+              <div className="text-2xl font-bold text-blue-600 mb-2">Real-time Analysis</div>
+              <div className="text-gray-600">Get instant insights on candidate responses with sentiment analysis and keyword matching.</div>
+            </div>
+            <div className="bg-white rounded-xl shadow p-6">
+              <div className="text-2xl font-bold text-blue-600 mb-2">Customizable Interviews</div>
+              <div className="text-gray-600">Create tailored interview experiences for different roles and experience levels.</div>
+            </div>
+            <div className="bg-white rounded-xl shadow p-6">
+              <div className="text-2xl font-bold text-blue-600 mb-2">Detailed Reports</div>
+              <div className="text-gray-600">Comprehensive interview reports with transcripts, analysis, and actionable insights.</div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section ref={pricingRef} id="pricing" className="w-full max-w-7xl mx-auto mt-32 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Pricing</h2>
+          <p className="text-lg text-gray-700 mb-2">All plans include a 14-day free trial • No setup fees • Cancel anytime</p>
+          <a href="#" className="text-blue-600 font-semibold hover:underline">Compare all features →</a>
+          {/* Add your pricing cards here */}
+        </section>
 
         {/* Testimonials Section */}
-        <div className="w-full max-w-5xl mx-auto mt-32 bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="w-full max-w-5xl mx-auto mt-32 bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-12 text-white">
               <h2 className="text-3xl font-bold mb-6">Trusted by HR Teams Worldwide</h2>

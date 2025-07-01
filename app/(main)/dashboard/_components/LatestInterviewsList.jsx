@@ -1,12 +1,19 @@
 "use client";
-import { Video } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { Video, Calendar, User, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import { useUser } from "@/app/provider";
 import InterviewCard from "./interviewcard";
 import { toast } from "sonner";
+
+const statusColors = {
+  upcoming: "bg-blue-100 text-blue-700",
+  completed: "bg-green-100 text-green-700",
+  cancelled: "bg-red-100 text-red-700"
+};
 
 function LatestInterviewsList() {
   const router = useRouter();
@@ -54,6 +61,42 @@ function LatestInterviewsList() {
           ))}
         </div>
       )}
+      <div className="bg-white rounded-2xl shadow-xl p-6 mt-10">
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Latest Interviews</h3>
+        {InterviewList.length === 0 ? (
+          <p className="text-gray-500">No interviews found.</p>
+        ) : (
+          <ul className="space-y-4">
+            {InterviewList.map((iv) => (
+              <li key={iv.id} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:shadow-lg transition">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gradient-to-tr from-blue-400 to-indigo-400 rounded-full p-2">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">{iv.job}</div>
+                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {iv.date} • {iv.time}
+                    </div>
+                    <div className="text-xs text-gray-400">Candidate: {iv.candidate}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[iv.status]}`}>
+                    {iv.status.charAt(0).toUpperCase() + iv.status.slice(1)}
+                  </span>
+                  <Link href={`/dashboard/interview/${iv.id}`}>
+                    <button className="ml-2 px-3 py-1 bg-blue-600 text-white rounded-lg flex items-center gap-1 hover:bg-blue-700 transition">
+                      Details <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
