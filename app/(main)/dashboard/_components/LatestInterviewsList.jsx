@@ -84,7 +84,9 @@ function LatestInterviewsList() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[iv.status]}`}>
-                    {iv.status.charAt(0).toUpperCase() + iv.status.slice(1)}
+                    {iv.status
+                      ? iv.status.charAt(0).toUpperCase() + iv.status.slice(1)
+                      : "Unknown"}
                   </span>
                   <Link href={`/dashboard/interview/${iv.id}`}>
                     <button className="ml-2 px-3 py-1 bg-blue-600 text-white rounded-lg flex items-center gap-1 hover:bg-blue-700 transition">

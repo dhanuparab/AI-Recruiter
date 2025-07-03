@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
@@ -18,14 +18,6 @@ function CreateInterview() {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
 
-  // Check credits when component mounts and when user changes
-  useEffect(() => {
-    if (user?.credits <= 0) {
-      toast.error("You don't have enough credits to create an interview");
-      router.push('/dashboard/create-interview'); // Redirect to pricing page
-    }
-  }, [user, router]);
-
   const onHandleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev, 
@@ -34,14 +26,9 @@ function CreateInterview() {
   };
 
   const onGoToNext = () => {
-    // First check credits
-    if (user?.credits <= 0) {
-      toast.error("Please purchase credits to create an interview");
-      router.push('/dashboard/pricing');
-      return;
-    }
+    if (!user) return; // Wait for user to load
 
-    // Then validate form fields
+    // Validation
     let missingField = '';
     if (!formData.jobPosition) missingField = 'Job Position';
     else if (!formData.jobDescription) missingField = 'Job Description';
@@ -52,21 +39,11 @@ function CreateInterview() {
       toast.error(`${missingField} is required`);
       return;
     }
-    
     setStep(step + 1);
   };
 
   const onCreateLink = async (interview_id) => {
     setLoading(true);
-    
-    // Double-check credits before proceeding
-    if (user?.credits <= 0) {
-      toast.error("Please purchase credits to create an interview");
-      router.push('/dashboard/pricing');
-      setLoading(false);
-      return;
-    }
-
     try {
       setInterviewId(interview_id);
       setStep(step + 1);
@@ -78,35 +55,80 @@ function CreateInterview() {
     }
   };
 
+  // Unique, subtle color palette
   return (
-    <div className="mt-10 px-10 md:px-24 lg:px-44 xl:px-56">
-      <div className="flex gap-5 items-center">
-        <ArrowLeft onClick={() => router.back()} className="cursor-pointer" />
-        <h2 className="font-bold text-2xl">Create New Interview</h2>
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] via-[#e9e6f7] to-[#dbeafe] flex items-center justify-center py-8 px-2">
+      <div className="w-full max-w-3xl">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-8">
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded-full bg-white/70 hover:bg-violet-100 shadow transition"
+            aria-label="Back"
+          >
+            <ArrowLeft className="w-6 h-6 text-violet-600" />
+          </button>
+          <h2 className="font-extrabold text-2xl md:text-3xl text-gray-900 tracking-tight drop-shadow-sm">
+            Create New Interview
+          </h2>
+        </div>
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <Progress
+            value={step * 33.33}
+            className="h-2 rounded-full bg-violet-100"
+            style={{ boxShadow: '0 2px 8px 0 #c7d2fe55' }}
+          />
+        </div>
+        {/* Glassmorphism Card */}
+        <div className="rounded-3xl shadow-2xl bg-white/70 backdrop-blur-md border border-violet-100 p-8 md:p-12 transition-all">
+          {/* Stepper Indicator */}
+          <div className="flex justify-center mb-8">
+            <div className="flex gap-4">
+              {[1, 2, 3].map((s) => (
+                <div
+                  key={s}
+                  className={`w-4 h-4 rounded-full border-2 transition-all duration-300
+                    ${step === s
+                      ? 'bg-violet-600 border-violet-600 scale-125 shadow-lg'
+                      : 'bg-white border-violet-200'
+                    }`}
+                />
+              ))}
+            </div>
+          </div>
+          {/* Step Content */}
+          {step === 1 && (
+            <FormContainer
+              onHandleInputChange={onHandleInputChange}
+              GoToNext={onGoToNext}
+              accentColor="#7c3aed"
+              inputClass="bg-white/80 border-violet-200 focus:border-violet-400"
+              labelClass="text-violet-700"
+              buttonClass="bg-violet-600 hover:bg-violet-700"
+            />
+          )}
+          {step === 2 && (
+            <QuestionList
+              formData={formData}
+              onCreateLink={onCreateLink}
+              loading={loading}
+              accentColor="#7c3aed"
+              cardClass="bg-violet-50/80 border-violet-100"
+              buttonClass="bg-violet-600 hover:bg-violet-700"
+            />
+          )}
+          {step === 3 && (
+            <InterviewLink
+              interview_id={interviewId}
+              formData={formData}
+              accentColor="#7c3aed"
+              cardClass="bg-violet-50/80 border-violet-100"
+              buttonClass="bg-violet-600 hover:bg-violet-700"
+            />
+          )}
+        </div>
       </div>
-      <Progress value={step * 33.33} className="my-5 h-2 w-full" />
-      
-      {step === 1 && (
-        <FormContainer
-          onHandleInputChange={onHandleInputChange} 
-          GoToNext={onGoToNext}
-        />
-      )}
-      
-      {step === 2 && (
-        <QuestionList 
-          formData={formData} 
-          onCreateLink={onCreateLink}
-          loading={loading}
-        />
-      )}
-      
-      {step === 3 && (
-        <InterviewLink 
-          interview_id={interviewId}
-          formData={formData} 
-        />
-      )}
     </div>
   );
 }
