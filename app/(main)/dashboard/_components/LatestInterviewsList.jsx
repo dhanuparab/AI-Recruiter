@@ -79,15 +79,21 @@ function LatestInterviewsList() {
                       <Calendar className="w-4 h-4" />
                       {iv.date} • {iv.time}
                     </div>
-                    <div className="text-xs text-gray-400">Candidate: {iv.candidate}</div>
+                    {/* Candidate, Status, Score Row */}
+                    <div className="flex items-center gap-4 mt-1">
+                      <span className="text-xs text-gray-500">
+                        <strong>Candidate:</strong> {iv.candidateName || iv.candidate || "N/A"}
+                      </span>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${statusColors[iv.status]}`}>
+                        {iv.status ? iv.status.charAt(0).toUpperCase() + iv.status.slice(1) : "Unknown"}
+                      </span>
+                      <span className="text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-full">
+                        Score: {iv.score !== undefined ? iv.score : "N/A"}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[iv.status]}`}>
-                    {iv.status
-                      ? iv.status.charAt(0).toUpperCase() + iv.status.slice(1)
-                      : "Unknown"}
-                  </span>
                   <Link href={`/dashboard/interview/${iv.id}`}>
                     <button className="ml-2 px-3 py-1 bg-blue-600 text-white rounded-lg flex items-center gap-1 hover:bg-blue-700 transition">
                       Details <ArrowRight className="w-4 h-4" />
