@@ -43,7 +43,7 @@ function Interview() {
     try {
       const { data: Interviews, error } = await supabase
         .from('Interviews')
-        .select('jobPosition, candidate_name, candidate_email, userEmail, jobDescription, duration, type, questionList')
+        .select('candidate_name, userEmail, jobPosition, jobDescription, duration, type, questionList')
         .eq('interview_id', interview_id);
 
       if (error) throw error;
@@ -97,18 +97,9 @@ function Interview() {
         questionList: interviewData?.questionList,
         interview_id: interview_id,
       });
-
-      // NEW: Save candidate name and email to the Interviews table
-      await supabase
-        .from('Interviews')
-        .update({
-          candidate_name: userName,
-          candidate_email: userEmail,
-        })
-        .eq('interview_id', interview_id);
-
+      
       toast.success('Creating your interview session...');
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Smooth delay
       router.push(`/interview/${interview_id}/start`);
     } catch (error) {
       toast.error('Connection failed');
@@ -306,31 +297,6 @@ function Interview() {
           Powered by AI interview technology • Secure and confidential
         </motion.p>
       </motion.div>
-
-      {/* Interview List Section - NEW */}
-      <div className="max-w-4xl mx-auto mt-12">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Scheduled Interviews
-        </h2>
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-            {InterviewList.map((interview) => (
-              <div key={interview.id} className="p-4 border-b last:border-b-0">
-                <div className="text-lg font-semibold text-gray-800">
-                  {interview.jobPosition}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Candidate: {interview.candidate_name || "N/A"}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Email: {interview.candidate_email || "N/A"}
-                </div>
-                {/* Add other fields as necessary */}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
