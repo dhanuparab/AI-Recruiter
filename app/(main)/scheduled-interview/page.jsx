@@ -27,7 +27,7 @@ function ScheduledInterview() {
 
   return (
     <div className="mt-5" >
-        <h2 className="font-bold text-2xl mb-4" >Interview List with feedback</h2>
+        <h2 className="font-bold text-2xl mb-4" >Interview History</h2>
         {interviewList?.length === 0 ? (
         <div className="p-5 flex flex-col items-center gap-3 text-center text-gray-500 bg-white border rounded-xl shadow-sm">
           <Video className="text-primary h-10 w-10" />
