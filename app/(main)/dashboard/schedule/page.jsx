@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { PhoneCall, Play, Calendar, Clock, ArrowLeft } from "lucide-react";
+import { PhoneCall, Play, Calendar as CalendarIcon, Clock, ArrowLeft } from "lucide-react";
 import Papa from "papaparse";
 
 const upcoming = [
@@ -68,6 +68,21 @@ export default function SchedulePage() {
 
 	// For demo: allow adding uploaded candidates to recent interviews
 	const [recentList, setRecentList] = useState(recent);
+
+	// Calendar scheduling state
+	const [showFullCalendar, setShowFullCalendar] = useState(false);
+	const [selectedDate, setSelectedDate] = useState(null);
+	const [availableTimes, setAvailableTimes] = useState([
+		"09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM"
+	]);
+	const [selectedTime, setSelectedTime] = useState("");
+	const [calendarMessage, setCalendarMessage] = useState("");
+
+	const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+	const [calendarSelectedDate, setCalendarSelectedDate] = useState(new Date());
+	const [calendarSelectedTime, setCalendarSelectedTime] = useState("");
+
+	const today = new Date().toISOString().split("T")[0];
 
 	const handleCall = (phone) => {
 		window.open(`tel:${phone.replace(/[^+\d]/g, "")}`);
@@ -139,8 +154,144 @@ export default function SchedulePage() {
 		setRecentList((prev) => [...newRecents, ...prev]);
 	};
 
+	const handleScheduleToday = () => {
+		setSelectedDate(today);
+		setShowFullCalendar(false);
+		setSelectedTime("");
+		setCalendarMessage("");
+	};
+
+	const handleOpenCalendar = () => {
+		setCalendarModalOpen(true);
+		setCalendarSelectedDate(new Date());
+		setCalendarSelectedTime("");
+	};
+
+	const handleDateChange = (e) => {
+		setSelectedDate(e.target.value);
+		setSelectedTime("");
+		setCalendarMessage("");
+	};
+
+	const handleTimeSelect = (time) => {
+		setSelectedTime(time);
+		setCalendarMessage("");
+	};
+
+	const handleConfirmSchedule = () => {
+		if (!selectedDate || !selectedTime) {
+			setCalendarMessage("Please select a date and time slot.");
+			return;
+		}
+		setCalendarMessage(
+			`Interview scheduled for ${selectedDate} at ${selectedTime}.`
+		);
+
+		// Show notification (use candidate name if available, else a random id)
+		const candidateNameOrId =
+			(csvCandidates[0]?.name || Math.floor(Math.random() * 1000));
+		showInterviewNotification(candidateNameOrId);
+
+		// Here you can add your scheduling logic (API call, etc.)
+	};
+
+	function showInterviewNotification(candidateNameOrId) {
+		if (!("Notification" in window)) return;
+		if (Notification.permission === "granted") {
+			new Notification("Incoming AI Interview Call", {
+				body: `Candidate ${candidateNameOrId} is calling for their interview`,
+			});
+		} else if (Notification.permission !== "denied") {
+			Notification.requestPermission().then(permission => {
+				if (permission === "granted") {
+					new Notification("Incoming AI Interview Call", {
+						body: `Candidate ${candidateNameOrId} is calling for their interview`,
+					});
+				}
+			});
+		}
+	}
+
 	return (
 		<div className="p-6 md:p-8">
+			{/* Quick Scheduling Section */}
+			<div className="mb-8">
+				<h2 className="font-semibold text-lg flex items-center gap-2 mb-2">
+					<CalendarIcon className="w-5 h-5 text-blue-600" />
+					Quick Scheduling
+				</h2>
+				<div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-2">
+					<div className="font-medium mb-1">Schedule for Today</div>
+					<div className="text-xs text-gray-600 mb-3">
+						Quickly set up an interview for today with the next available time slot.
+					</div>
+					<button
+						className="w-full py-2 rounded bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold flex items-center justify-center gap-2 hover:from-blue-600 hover:to-indigo-600 transition"
+						onClick={handleScheduleToday}
+					>
+						<Clock className="w-4 h-4" />
+						Schedule Today
+					</button>
+				</div>
+				<button
+					className="w-full flex items-center justify-center gap-2 py-2 border rounded mb-2 bg-white hover:bg-gray-50 transition"
+					onClick={handleOpenCalendar}
+				>
+					<CalendarIcon className="w-4 h-4" />
+					Open Full Calendar
+				</button>
+				{/* Calendar UI */}
+				{(showFullCalendar || selectedDate) && (
+					<div className="mt-4 bg-white border rounded-xl p-4 shadow">
+						<div className="mb-2 font-semibold flex items-center gap-2">
+							<CalendarIcon className="w-4 h-4 text-blue-600" />
+							Select Date
+						</div>
+						<input
+							type="date"
+							className="border rounded px-3 py-2 mb-4"
+							value={selectedDate || ""}
+							onChange={handleDateChange}
+							min={today}
+						/>
+						{selectedDate && (
+							<>
+								<div className="mb-2 font-semibold flex items-center gap-2">
+									<Clock className="w-4 h-4 text-indigo-600" />
+									Select Time Slot
+								</div>
+								<div className="flex flex-wrap gap-2 mb-4">
+									{availableTimes.map((time) => (
+										<button
+											key={time}
+											className={`px-4 py-2 rounded border ${
+												selectedTime === time
+													? "bg-indigo-600 text-white border-indigo-600"
+													: "bg-gray-50 text-gray-700 border-gray-200 hover:bg-indigo-50"
+											} transition`}
+											onClick={() => handleTimeSelect(time)}
+										>
+											{time}
+										</button>
+									))}
+								</div>
+								<button
+									className="w-full py-2 rounded bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold hover:from-indigo-600 hover:to-blue-600 transition"
+									onClick={handleConfirmSchedule}
+								>
+									Confirm Schedule
+								</button>
+								{calendarMessage && (
+									<div className={`mt-3 text-sm ${calendarMessage.includes("scheduled") ? "text-green-600" : "text-red-600"}`}>
+										{calendarMessage}
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				)}
+			</div>
+
 			{/* CSV Upload Section */}
 			<div className="bg-white rounded-xl shadow p-6 mb-8">
 				<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -253,7 +404,7 @@ export default function SchedulePage() {
 				<div className="bg-white rounded-xl shadow p-6">
 					<div className="flex items-center justify-between mb-4">
 						<div className="flex items-center gap-2">
-							<Calendar className="w-5 h-5 text-blue-600" />
+							<CalendarIcon className="w-5 h-5 text-blue-600" />
 							<h2 className="text-lg font-semibold text-gray-900">
 								Upcoming Interviews
 							</h2>
@@ -338,6 +489,134 @@ export default function SchedulePage() {
 					</div>
 				</div>
 			</div>
+
+			{/* Calendar Modal */}
+			<CalendarModal
+				open={calendarModalOpen}
+				onClose={() => setCalendarModalOpen(false)}
+				selectedDate={calendarSelectedDate}
+				setSelectedDate={setCalendarSelectedDate}
+				selectedTime={calendarSelectedTime}
+				setSelectedTime={setCalendarSelectedTime}
+				onConfirm={() => {
+					if (!calendarSelectedDate || !calendarSelectedTime) return;
+					setCalendarModalOpen(false);
+					setCalendarMessage(
+						`Interview scheduled for ${calendarSelectedDate.toLocaleDateString()} at ${calendarSelectedTime}.`
+					);
+					// Optionally, show notification here
+				}}
+			/>
 		</div>
 	);
+}
+
+function CalendarModal({ open, onClose, selectedDate, setSelectedDate, selectedTime, setSelectedTime, onConfirm }) {
+    const today = new Date();
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+
+    // Get days in month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+
+    const weeks = [];
+    let week = [];
+    for (let i = 0; i < firstDay; i++) week.push(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+        week.push(d);
+        if (week.length === 7) {
+            weeks.push(week);
+            week = [];
+        }
+    }
+    if (week.length) {
+        while (week.length < 7) week.push(null);
+        weeks.push(week);
+    }
+
+    const availableTimes = [
+        "9:00 AM", "10:00 AM", "11:00 AM",
+        "2:00 PM", "3:00 PM", "4:00 PM"
+    ];
+
+    return open ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+            <div className="bg-white rounded-xl shadow-xl w-[350px] p-5 relative">
+                <button className="absolute right-3 top-3 text-gray-400 hover:text-gray-700" onClick={onClose}>×</button>
+                <div className="font-semibold mb-2">Select Interview Date</div>
+                <div className="mb-4">
+                    <div className="flex items-center justify-between mb-1">
+                        <button
+                            className="text-gray-500 hover:text-gray-900"
+                            onClick={() => setSelectedDate(new Date(year, month - 1, 1))}
+                        >{"<"}</button>
+                        <span className="font-medium">{selectedDate.toLocaleString("default", { month: "long", year: "numeric" })}</span>
+                        <button
+                            className="text-gray-500 hover:text-gray-900"
+                            onClick={() => setSelectedDate(new Date(year, month + 1, 1))}
+                        >{">"}</button>
+                    </div>
+                    <table className="w-full text-center text-xs">
+                        <thead>
+                            <tr>
+                                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+                                    <th key={d} className="py-1">{d}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {weeks.map((week, i) => (
+                                <tr key={i}>
+                                    {week.map((d, j) => (
+                                        <td key={j} className="py-1">
+                                            {d ? (
+                                                <button
+                                                    className={`w-7 h-7 rounded-full ${
+                                                        selectedDate.getDate() === d && selectedDate.getMonth() === month
+                                                            ? "bg-blue-600 text-white"
+                                                            : "hover:bg-blue-100"
+                                                    }`}
+                                                    onClick={() => setSelectedDate(new Date(year, month, d))}
+                                                    disabled={
+                                                        new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate())
+                                                    }
+                                                >
+                                                    {d}
+                                                </button>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="mb-2 font-semibold">Available Time Slots</div>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                    {availableTimes.map((time) => (
+                        <button
+                            key={time}
+                            className={`py-2 rounded border ${
+                                selectedTime === time
+                                    ? "bg-indigo-600 text-white border-indigo-600"
+                                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-indigo-50"
+                            } transition`}
+                            onClick={() => setSelectedTime(time)}
+                        >
+                            {time}
+                        </button>
+                    ))}
+                </div>
+                <button
+                    className="w-full py-2 rounded bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold hover:from-indigo-600 hover:to-blue-600 transition"
+                    onClick={onConfirm}
+                >
+                    Confirm Schedule
+                </button>
+            </div>
+        </div>
+    ) : null;
 }
