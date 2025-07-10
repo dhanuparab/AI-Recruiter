@@ -197,7 +197,7 @@ function Interview() {
                   Your Full Name
                 </label>
                 <Input
-                  placeholder="Eg: Sujeeth Kumar"
+                  placeholder="Eg: Greathire"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   className="py-3 px-4 border-gray-300 focus:ring-2 focus:ring-indigo-500"
@@ -214,7 +214,7 @@ function Interview() {
                 </label>
                 <Input
                   type="email"
-                  placeholder="Eg: Sujeethkumar@example.com"
+                  placeholder="Eg: hr@example.com"
                   value={userEmail}
                   onChange={(e) => setUserEmail(e.target.value)}
                   className="py-3 px-4 border-gray-300 focus:ring-2 focus:ring-indigo-500"
