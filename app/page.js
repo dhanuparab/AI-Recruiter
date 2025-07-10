@@ -3,7 +3,7 @@ import Image from "next/image";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Brain, Users, Sparkles, Target, BarChart2, Clock, Zap, Check, Search, FileText, ShieldCheck, Award, Briefcase, X } from "lucide-react";
+import { ArrowRight, Brain, Users, Sparkles, Target, BarChart2, Clock, Zap, Check, Search, FileText, ShieldCheck, Award, Briefcase, X, ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/services/supabaseClient";
@@ -13,6 +13,7 @@ export default function Home() {
   const router = useRouter();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [showDemoModal, setShowDemoModal] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   // Refs for smooth scrolling
   const featuresRef = useRef(null);
@@ -99,26 +100,98 @@ export default function Home() {
     },
     {
       quote: "Built with security at its core, the site ensures robust protection against vulnerabilities while maintaining smooth performance.",
-      author: "Sujeeth",
-      image: "/user Photos/Sujeeth.jpeg",
-      role: "Information Security Analyst, GlobalSoft",
+      author: "Moiz",
+      image: "/user Photos/MoizImg.jpg",
+      role: "Full Stack Developer, GreatHire",
       avatar: "/avatar3.jpg"
     },
-    // {
-    //   quote: "Built with security at its core, the site ensures robust protection against vulnerabilities while maintaining smooth performance.",
-    //   author: "Eswar",
-    //   image: "/user Photos/avatar.jpeg",
-    //   role: "Information Security Analyst, GlobalSoft",
-    //   avatar: "/avatar3.jpg"
-    // },
+    {
+      quote: "We sincerely thank Great Hire Company for providing our learners with valuable internship opportunities that have significantly contributed to their skill development and career growth. Your support plays a vital role in shaping the future of aspiring professionals from ITVEDANT Institute.",
+      author: "Kamini ",
+      image: "/user Photos/Gen1.jpeg",
+      role: "HR and corporate relations executive",
+      avatar: "/avatar3.jpg"
+    },
+    {
+      quote: "The platform is secure, reliable, and delivers consistently smooth performance.",      
+      author: "Tanmai",
+      image: "/user Photos/Tanmai.jpeg",
+      role: "Hiring Manager",
+      avatar: "/avatar3.jpg"
+    },
+    {
+      quote: "Great Hire has consistently delivered top-tier candidates who align with both our job requirements and our values. Their attention to understanding our team dynamics makes all the difference  'Raviraj pvt limited'. ",
+      name: "Raviraj ",
+      image: "/user Photos/Gen17.jpg",
+      role: "Manager",
+      avatar: "/avatar4.jpg"
+    },
+    {
+      quote: "We've partnered with several recruiting services in the past, but none have matched the personalized approach of Great Hire. Their candidates are not only qualified but also passionate and eager to contribute.",
+      name: "Srinivas",
+      image: "/user Photos/Gen19.jpg",
+      role: "Director of Operations",
+      avatar: "/avatar5.jpg"
+    },
+    {
+      quote: "Great Hire doesn’t just send resumes—they send the right people. Every candidate they’ve placed with us came prepared and passionate, ready to support our busy agents from day one.",
+      name: "Navaneeth ",
+      image: "/user Photos/Navaneeth.jpeg",
+      role: "Human Resource",
+      avatar: "/avatar6.jpg"
+    },
+    {
+      quote: "Real estate is about relationships, and Great Hire understands that. They found us a listing assistant who blends perfectly with our team and impresses clients consistently lead agent. ",
+      name: "Tabassum",
+      image: "/user Photos/Gen11.jpeg",
+      role: "Lead Agent",
+      avatar: "/avatar7.jpg"
+    },
+    {
+      quote: "We had trouble finding talent who could keep up with the demands of a high-volume brokerage. Great Hire delivered professionals who not only kept pace but helped us grow.",
+      name: " Darshini",
+      image: "/user Photos/Gen13.jpeg",
+      role: "Sales Managers",
+      avatar: "/avatar8.jpg"
+    },
+
+    {
+      quote: "As a fast-growing startup, we needed to find candidates quickly, and Great Hire delivered. The talent pool is extensive, and the platform’s sorting tools allowed us to quickly narrow down our search to candidates who matched our needs. I can confidently say that Great Hire is an essential for our recruiting strategy.",
+      name: "Anirban Barman",
+      image: "/user Photos/Gen15.jpg",
+      role: "Assistant Manager",
+      avatar: "/avatar9.jpg"
+    },
+    {
+      quote: "As a business owner, I have been using Great Hire for the past year to find top-tier talent for our team. The platform’s user-friendly ui and wide range of highly skilled candidates have made it a fantastic resource. The hiring process has been smooth, and able to connect with candidates.",
+      name: "Ahmed Shakeel",
+      image: "/user Photos/Gen16.jpg",
+      role: "Business Owner",
+      avatar: "/avatar10.jpg"
+    },
+    {
+      quote: "I’ve worked with numerous job platforms, but Great Hire stands out because of its ability to match us with candidates who not only have the technical skills we need but also fit our company culture. We've hired a number of employees through Great Hire, and each has brought something unique to the table.",
+      name: "Raghav Naidu",
+      image: "/user Photos/Gen18.jpg",
+      role: "Hiring Manager",
+      avatar: "/avatar11.jpg"
+    },
+    {
+      quote: "Finding the right candidates used to be a challenge, but Great Hire has made it effortless. The platform connects us with top talent that perfectly fits our company’s needs. Highly recommend for any recruiter!",
+      name: "Karan Jaiswal",  
+      image: "/user Photos/Gen19.jpg",
+      role: "Talent Acquisition Manager",
+      avatar: "/avatar12.jpg"
+    },
   ];
 
   useEffect(() => {
+    if (paused) return;
     const interval = setInterval(() => {
       setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [paused, testimonials.length]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#e0e7ff] via-[#f6f9ff] to-[#f0fdfa]">
@@ -369,80 +442,112 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <div className="w-full max-w-5xl mx-auto mt-32 bg-white rounded-2xl shadow-xl overflow-hidden mb-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-12 text-white">
+        <div className="w-full max-w-5xl mx-auto mt-32 rounded-2xl shadow-xl overflow-hidden mb-10 relative group">
+          <div className="grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-br from-blue-600/90 to-indigo-600/90">
+            {/* Left: Trusted by HR */}
+            <div className="p-12 text-white flex flex-col justify-center">
               <h2 className="text-3xl font-bold mb-6">Trusted by HR Teams Worldwide</h2>
               <p className="text-blue-100 mb-8">
                 Join thousands of companies who have transformed their hiring with TalentAI
               </p>
               <div className="flex flex-wrap gap-4">
                 {clientLogos.map((client, i) => (
-                  <div key={i} className="h-12 w-12 bg-white rounded-lg backdrop-blur-sm flex items-center justify-center">
-                    <div className="h-10 w-10 bg-white rounded flex items-center justify-center shadow-md">
+                  <div key={i} className="h-12 w-12 bg-white rounded-lg flex items-center justify-center shadow-md">
                     <img
-                    src={client.logo}
-                    alt={`Client Logo ${i + 1}`}
-                    width={48}
-                    height={48}
-                    className="object-contain"
-                  />
-                    </div>
+                      src={client.logo}
+                      alt={`Client Logo ${i + 1}`}
+                      width={48}
+                      height={48}
+                      className="object-contain"
+                    />
                   </div>
                 ))}
               </div>
             </div>
-            
-            <div className="p-7">
-              <div className="relative h-full">
+            {/* Right: Testimonial Carousel */}
+            <div className="relative bg-white/90 flex flex-col justify-center items-center px-8 py-12 min-h-[340px]">
+              {/* Carousel Controls */}
+              <button
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/80 text-blue-700 rounded-full p-2 shadow transition-opacity opacity-0 group-hover:opacity-100 z-10"
+                onClick={() => {
+                  setCurrentTestimonial((prev) =>
+                    prev === 0 ? testimonials.length - 1 : prev - 1
+                  );
+                }}
+                aria-label="Previous testimonial"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/40 hover:bg-white/80 text-blue-700 rounded-full p-2 shadow transition-opacity opacity-0 group-hover:opacity-100 z-10"
+                onClick={() => {
+                  setCurrentTestimonial((prev) =>
+                    prev === testimonials.length - 1 ? 0 : prev + 1
+                  );
+                }}
+                aria-label="Next testimonial"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+              {/* Testimonial Content */}
+              <div
+                className="w-full flex flex-col items-center transition-all duration-500"
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
+                style={{ minHeight: 220, maxWidth: 480, margin: "0 auto" }}
+              >
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentTestimonial}
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 1.5 }}
-                    className="absolute inset-0"
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ duration: 0.7 }}
+                    className="w-full"
                   >
-                    <div className="flex flex-col h-full justify-center">
-                      <div className="text-2xl font-oswald font- text-gray-800 mb-6 leading-relaxed">
-                        "{testimonials[currentTestimonial].quote}"
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 rounded-full bg-gray-200 mr-4 overflow-hidden">
-                          {/* Replace with actual avatar image */}
-                          {testimonials[currentTestimonial].image ? (
-                <Image
-                  src={testimonials[currentTestimonial].image}
-                  alt={testimonials[currentTestimonial].author}
-                  width={40}
-                  height={40}
-                  className=" w-full h-full object-cover "
-                />
-              ) : (
+                    <div className="text-xl sm:text-2xl font-medium text-gray-800 mb-6 leading-relaxed text-center break-words">
+                      “{testimonials[currentTestimonial].quote}”
+                    </div>
+                    <div className="flex items-center justify-center mt-4">
+                      <div className="w-12 h-12 rounded-full bg-gray-200 mr-4 overflow-hidden border-2 border-blue-200">
+                        {testimonials[currentTestimonial].image ? (
+                          <Image
+                            src={testimonials[currentTestimonial].image}
+                            alt={testimonials[currentTestimonial].author || testimonials[currentTestimonial].name}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
                           <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-500">
-                            {testimonials[currentTestimonial].author.charAt(0)}
+                            {(testimonials[currentTestimonial].author || testimonials[currentTestimonial].name || "U").charAt(0)}
                           </div>
-              )} 
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900">
+                          {testimonials[currentTestimonial].author || testimonials[currentTestimonial].name}
                         </div>
-                        <div>
-                          <div className="font-bold text-gray-900">{testimonials[currentTestimonial].author}</div>
-                          <div className="text-gray-500 text-sm">{testimonials[currentTestimonial].role}</div>
-                        </div>
+                        <div className="text-gray-500 text-sm">{testimonials[currentTestimonial].role}</div>
                       </div>
                     </div>
                   </motion.div>
                 </AnimatePresence>
-                
-                <div className="absolute bottom-0 left-0 space-x-2  ">
-                  {testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentTestimonial(index)}
-                      className={`w-2 h-2 rounded-full ${currentTestimonial === index ? 'bg-blue-600' : 'bg-gray-300'}`}
-                    />
-                  ))}
-                </div>
+              </div>
+              {/* Dots */}
+              <div className="flex justify-center mt-6 space-x-2">
+                {testimonials.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentTestimonial(idx)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      currentTestimonial === idx
+                        ? "bg-blue-600 scale-125 shadow"
+                        : "bg-gray-300 hover:bg-blue-400"
+                    }`}
+                    aria-label={`Go to testimonial ${idx + 1}`}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -468,5 +573,5 @@ export default function Home() {
         .animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
       `}</style>
     </div>
-  );
-}
+
+  );}
