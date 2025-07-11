@@ -208,8 +208,27 @@ export default function Home() {
           <button className="hover:text-[#6366f1] transition bg-transparent" onClick={goToDemo}>Demo</button>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="text-xs px-3 py-1 border-blue-200 flex items-center" onClick={goToRecruiter}><ArrowRight className="w-4 h-4 mr-1" />Recruiter</Button>
-          <Button variant="outline" className="text-xs px-3 py-1 border-blue-200" onClick={goToAdmin}><ArrowRight className="w-4 h-4 mr-1"/>Admin</Button>
+          <Button
+            variant="outline"
+            className="text-xs px-3 py-1 border-blue-200 flex items-center"
+            onClick={() => router.push("/dashboard")}
+          >
+            <ArrowRight className="w-4 h-4 mr-1" />Candidate
+          </Button>
+          <Button
+            variant="outline"
+            className="text-xs px-3 py-1 border-blue-200 flex items-center"
+            onClick={() => router.push("/auth/recruiter")}
+          >
+            <ArrowRight className="w-4 h-4 mr-1" />Recruiter
+          </Button>
+          <Button
+            variant="outline"
+            className="text-xs px-3 py-1 border-blue-200"
+            onClick={() => router.push("/auth/admin")}
+          >
+            <ArrowRight className="w-4 h-4 mr-1"/>Admin
+          </Button>
         </div>
       </nav>
 
