@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PhoneCall, Play, Calendar as CalendarIcon, Clock, ArrowLeft } from "lucide-react";
 import Papa from "papaparse";
+import { supabase } from "@/services/supabaseClient";
 
 const upcoming = [
 	{
@@ -28,28 +29,6 @@ const upcoming = [
 	},
 ];
 
-const recent = [
-	{
-		id: 1,
-		name: "John Smith",
-		role: "Software Engineer",
-		status: "completed",
-		score: 85,
-	},
-	{
-		id: 2,
-		name: "Sarah Johnson",
-		role: "Product Manager",
-		status: "in-progress",
-	},
-	{
-		id: 3,
-		name: "Mike Wilson",
-		role: "UX Designer",
-		status: "scheduled",
-	},
-];
-
 const statusColors = {
 	completed: "bg-gray-900 text-white",
 	"in-progress": "bg-gray-100 text-gray-700",
@@ -67,7 +46,38 @@ export default function SchedulePage() {
 	const [currentCallIdx, setCurrentCallIdx] = useState(-1);
 
 	// For demo: allow adding uploaded candidates to recent interviews
-	const [recentList, setRecentList] = useState(recent);
+	const [recentList, setRecentList] = useState([]);
+	const [showAll, setShowAll] = useState(false);
+
+	useEffect(() => {
+		async function fetchRecentInterviews() {
+			const { data, error } = await supabase
+				.from("interview-feedback")
+				.select("id, userName, userEmail, created_at, feedback")
+				.order("created_at", { ascending: false });
+			if (!error && data) {
+				// Parse score from feedback JSON
+				const parsed = data.map(item => {
+					let score = "N/A";
+					try {
+						const fb = JSON.parse(item.feedback);
+						score = fb?.rating?.TechnicalSkills ?? "N/A";
+					} catch {}
+					return {
+						id: item.id,
+						name: item.userName || item.userEmail,
+						role: "", // Add role if available in your table
+						status: "completed",
+						score,
+						date: item.created_at,
+						feedback: item.feedback,
+					};
+				});
+				setRecentList(parsed);
+			}
+		}
+		fetchRecentInterviews();
+	}, []);
 
 	// Calendar scheduling state
 	const [showFullCalendar, setShowFullCalendar] = useState(false);
@@ -399,61 +409,7 @@ export default function SchedulePage() {
 					Back to Dashboard
 				</span>
 			</button>
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-				{/* Upcoming Interviews */}
-				<div className="bg-white rounded-xl shadow p-6">
-					<div className="flex items-center justify-between mb-4">
-						<div className="flex items-center gap-2">
-							<CalendarIcon className="w-5 h-5 text-blue-600" />
-							<h2 className="text-lg font-semibold text-gray-900">
-								Upcoming Interviews
-							</h2>
-						</div>
-						<div className="flex items-center gap-2">
-							<PhoneCall className="w-4 h-4 text-gray-500" />
-							<span className="text-sm text-gray-700">Auto-Call</span>
-							<input
-								type="checkbox"
-								checked={autoCall}
-								onChange={() => setAutoCall((v) => !v)}
-								className="accent-blue-600 w-4 h-4"
-							/>
-						</div>
-					</div>
-					<div className="space-y-4">
-						{upcoming.map((u) => (
-							<div
-								key={u.id}
-								className="flex items-center justify-between bg-gray-50 rounded-lg border border-gray-200 p-4"
-							>
-								<div>
-									<div className="font-semibold text-gray-900">{u.name}</div>
-									<div className="text-sm text-gray-500">{u.role}</div>
-									<div className="text-blue-700 text-sm font-medium">
-										{u.time}
-									</div>
-									<div className="text-xs text-gray-400">{u.phone}</div>
-								</div>
-								<div className="flex flex-col gap-2">
-									<button
-										className="flex items-center gap-1 px-4 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition text-sm"
-										onClick={() => handleCall(u.phone)}
-									>
-										<PhoneCall className="w-4 h-4" />
-										Call
-									</button>
-									<button
-										className="px-4 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
-										onClick={() => handleStart(u.name)}
-									>
-										Start
-									</button>
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-
+			<div className="grid grid-cols-1 md:grid-cols-1 gap-8">
 				{/* Recent Interviews */}
 				<div className="bg-white rounded-xl shadow p-6">
 					<div className="flex items-center gap-2 mb-4">
@@ -463,29 +419,34 @@ export default function SchedulePage() {
 						</h2>
 					</div>
 					<div className="space-y-4">
-						{recentList.map((r) => (
+						{(showAll ? recentList : recentList.slice(0, 5)).map((r) => (
 							<div
 								key={r.id}
 								className="bg-gray-50 rounded-lg border border-gray-200 p-4 flex flex-col md:flex-row md:items-center md:justify-between"
 							>
 								<div>
 									<div className="font-semibold text-gray-900">{r.name}</div>
+									{/* Show role if available */}
 									<div className="text-sm text-gray-500">{r.role}</div>
+									<div className="text-xs text-gray-400">{new Date(r.date).toLocaleString()}</div>
 								</div>
 								<div className="flex items-center gap-3 mt-2 md:mt-0">
-									<span
-										className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[r.status]}`}
-									>
+									<span className={`px-3 py-1 rounded-full text-xs font-semibold bg-gray-900 text-white`}>
 										{r.status}
 									</span>
-									{r.status === "completed" && (
-										<span className="text-green-600 text-sm font-semibold">
-											Score: {r.score}/100
-										</span>
-									)}
 								</div>
 							</div>
 						))}
+						{recentList.length > 5 && (
+							<div className="flex justify-center mt-4">
+								<button
+									className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+									onClick={() => setShowAll(v => !v)}
+								>
+									{showAll ? "Show Less" : "Show More"}
+								</button>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>

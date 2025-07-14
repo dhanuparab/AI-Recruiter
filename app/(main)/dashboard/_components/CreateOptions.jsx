@@ -18,18 +18,18 @@ const options = [
 		href: "/dashboard/schedule",
 		bg: "bg-white border border-green-100 hover:shadow-lg",
 	},
-	{
-		title: "Candidates",
-		description: "Manage and review your candidate pool.",
-		icon: <Users className="w-8 h-8 text-purple-600" />,
-		href: "/dashboard/candidates",
-		bg: "bg-white border border-purple-100 hover:shadow-lg",
-	},
+	// {
+	// 	title: "Candidates",
+	// 	description: "Manage and review your candidate pool.",
+	// 	icon: <Users className="w-8 h-8 text-purple-600" />,
+	// 	href: "/dashboard/candidates",
+	// 	bg: "bg-white border border-purple-100 hover:shadow-lg",
+	// },
 ];
 
 function CreateOptions() {
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+		<div className="grid grid-cols-2 md:grid-cols-2 gap-6 mb-10">
 			{options.map((opt, idx) => (
 				<Link href={opt.href} key={idx} className="group">
 					<div
