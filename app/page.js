@@ -211,7 +211,7 @@ export default function Home() {
           <Button
             variant="outline"
             className="text-xs px-3 py-1 border-blue-200 flex items-center"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/auth/candidate")}
           >
             <ArrowRight className="w-4 h-4 mr-1" />Candidate
           </Button>
