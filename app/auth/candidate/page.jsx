@@ -59,43 +59,78 @@ export default function CandidateDashboard() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white shadow-md px-4 py-6">
-        <div className="text-2xl font-bold text-blue-600 mb-6">Candidate Panel</div>
-        <nav className="space-y-2">
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => scrollTo(overviewRef)}
-          >
-            <LayoutDashboard className="w-4 h-4 mr-2" />
-            Overview
+        <aside className="w-full md:w-64 bg-white shadow-md px-4 py-6">
+  <div className="text-2xl font-bold text-blue-600 mb-6">Candidate Panel</div>
+
+  {/* Schedule Today Button */}
+  <div className="bg-blue-50 p-4 rounded-md mb-4">
+    <p className="text-sm font-semibold mb-2">Schedule for Today</p>
+    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+      ⏰ Schedule Today
+    </Button>
+  </div>
+
+  {/* Calendar Modal */}
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="outline" className="w-full mb-4">
+        📅 Open Full Calendar
+      </Button>
+    </DialogTrigger>
+    <DialogContent className="max-w-xs">
+      <DialogHeader>
+        <DialogTitle>Select Interview Date</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4">
+        <input
+          type="date"
+          className="w-full border border-gray-300 rounded-md p-2"
+          defaultValue={new Date().toISOString().split("T")[0]}
+        />
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"].map(
+            (time, i) => (
+              <Button key={i} variant="outline" className="w-full">
+                {time}
+              </Button>
+            )
+          )}
+        </div>
+        <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
+          Confirm Schedule
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+
+  {/* Inline Scheduling Section */}
+  <div className="bg-gray-50 p-4 rounded-md">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      📆 Select Date
+    </label>
+    <input
+      type="date"
+      className="w-full border border-gray-300 rounded-md p-2 mb-4"
+      defaultValue={new Date().toISOString().split("T")[0]}
+    />
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      🕒 Select Time Slot
+    </label>
+    <div className="grid grid-cols-3 gap-2 mb-4">
+      {["09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM"].map(
+        (slot, i) => (
+          <Button key={i} variant="outline" size="sm" className="w-full">
+            {slot}
           </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => scrollTo(upcomingRef)}
-          >
-            <CalendarCheck className="w-4 h-4 mr-2" />
-            Upcoming
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => scrollTo(historyRef)}
-          >
-            <History className="w-4 h-4 mr-2" />
-            History
-          </Button>
-          <Button
-            variant="secondary"
-            className="w-full justify-start mt-4"
-            onClick={() => router.push("/schedule")}
-          >
-            <ArrowRight className="w-4 h-4 mr-2" />
-            Go to Schedule Page
-          </Button>
-        </nav>
-      </aside>
+        )
+      )}
+    </div>
+    <Button className="w-full bg-indigo-500 text-white hover:bg-indigo-600">
+      Confirm Schedule
+    </Button>
+  </div>
+</aside>
+
 
       {/* Main Content */}
       <main className="flex-1 p-6">
