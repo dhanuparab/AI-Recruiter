@@ -11,7 +11,7 @@ export default function AdminLogin() {
   const handleAdminLogin = () => {
     // TODO: Replace with your actual admin login logic
     if (email && password) {
-      router.push("/dashboard");
+      router.push("/dashboard/admin-panel");
     }
   };
 

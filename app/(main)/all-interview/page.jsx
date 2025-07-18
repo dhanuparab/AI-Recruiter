@@ -100,7 +100,7 @@ function AllInterview() {
 
   return (
     <div className="my-5">
-      <h2 className="font-bold text-2xl mb-4">Previously Created Interviews</h2>
+      {/* <h2 className="font-bold text-2xl mb-4">Previously Created Interviews</h2>
 
       {InterviewList?.length === 0 ? (
         <div className="p-5 flex flex-col items-center gap-3 text-center text-gray-500 bg-white border rounded-xl shadow-sm">
@@ -115,9 +115,9 @@ function AllInterview() {
         </div>
       ) : (
         InterviewList && (
-          <>
+          <> */}
             {/* Show only 3 by default, all if expanded */}
-            <div className="grid grid-cols-2 xl:grid-cols-3 gap-5">
+            {/* <div className="grid grid-cols-2 xl:grid-cols-3 gap-5">
               {(showAllPrevious ? InterviewList : InterviewList.slice(0, PREVIEW_COUNT)).map(
                 (interview, index) => (
                   <InterviewCard interview={interview} key={index} />
@@ -136,7 +136,7 @@ function AllInterview() {
             )}
           </>
         )
-      )}
+      )} */}
 
       {/* <form onSubmit={handleSubmit}> */}
         {/* ...other fields... */}

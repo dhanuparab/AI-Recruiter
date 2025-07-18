@@ -76,7 +76,7 @@ function LatestInterviewsList() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-xl p-6 mt-10">
+      {/* <div className="bg-white rounded-2xl shadow-xl p-6 mt-10">
         <h3 className="text-xl font-bold text-gray-800 mb-4">Latest Interviews</h3>
         {LatestInterviews.length === 0 ? (
           <p className="text-gray-500">No interviews found.</p>
@@ -105,16 +105,16 @@ function LatestInterviewsList() {
                         {/* <span className="text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-full">
                           Score: {iv.score !== undefined ? iv.score : "N/A"}
                         </span> */}
-                      </div>
+                      {/* </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">  */}
                     {/* <Link href={`/dashboard/interview/${iv.id}`}>
                       <button className="ml-2 px-3 py-1 bg-blue-600 text-white rounded-lg flex items-center gap-1 hover:bg-blue-700 transition">
                         Details <ArrowRight className="w-4 h-4" />
                       </button>
                     </Link> */}
-                  </div>
+                  {/* </div>
                 </li>
               ))}
             </ul>
@@ -130,7 +130,7 @@ function LatestInterviewsList() {
             )}
           </>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
