@@ -46,7 +46,9 @@ function CandidateFeedbackDialog({ candidate }) {
     : 0;
 
   // Determine recommendation status
-  const isRecommended = !feedback?.Recommendation?.toLowerCase().includes('not');
+const isRecommended = typeof feedback?.Recommendation === 'string'
+  ? !feedback.Recommendation.toLowerCase().includes('not')
+  : false;
 
   const getQualitativeFeedback = (score) => {
     if (score >= 8) return "Good";
